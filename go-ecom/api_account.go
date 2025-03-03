@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"time"
 
@@ -222,9 +224,33 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	user.Password_Hash = string(encpw)
 
 	// create file
-	user.ImageName, user.ImagePath, err = createFile(r, "image", "users")
-	if err != nil {
-		return serverError(w, err.Error())
+	file, fileHeader, err := r.FormFile("image")
+	if err == nil {
+		// create upload dir
+		uploadDir := "users"
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			return validationError("Failed to create uploads directory")
+		}
+
+		// save file
+		fileName := uuid.New().String() + "_" + fileHeader.Filename
+		filePath := filepath.Join(uploadDir, fileName)
+		outFile, err := os.Create(filePath)
+		if err != nil {
+			return validationError("Failed to save file")
+		}
+		defer outFile.Close()
+
+		// copy file contents
+		_, err = io.Copy(outFile, file)
+		if err != nil {
+			return validationError("Failed to copy file")
+		}
+		user.ImageName = fileName
+		user.ImagePath = filePath
+	} else {
+		user.ImageName = ""
+		user.ImagePath = ""
 	}
 
 	addressesData := r.MultipartForm.Value["addresses"]

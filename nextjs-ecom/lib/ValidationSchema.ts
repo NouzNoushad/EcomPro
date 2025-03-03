@@ -13,3 +13,18 @@ export const ProductFormValidation = z.object({
 export type ProductFormError = {
     [Key in keyof z.infer<typeof ProductFormValidation>]?: string[]
 }
+
+// signup validation
+export const SignupFormSchema = z.object({
+    full_name: z.string().min(2, { message: 'Name must be atleast 2 characters long' }).trim(),
+    email: z.string().email({ message: 'Please enter valid email' }),
+    password: z.string()
+        .min(8, "Password must be at least 8 characters long")
+        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .regex(/[0-9]/, "Password must contain at least one number")
+        .regex(/[!@#$^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
+})
+
+export type SignupFormError = {
+    [Key in keyof z.infer<typeof SignupFormSchema>]?: string[]
+}

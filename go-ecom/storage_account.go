@@ -12,7 +12,7 @@ func (s *PostgresStore) createUserTable() error {
 		id text primary key,
 		full_name text not null,
 		email text unique not null,
-		phone text unique,
+		phone text,
 		password_hash text not null,
 		role text,
 		image_name text,
