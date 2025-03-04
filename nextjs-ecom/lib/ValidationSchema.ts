@@ -28,3 +28,17 @@ export const SignupFormSchema = z.object({
 export type SignupFormError = {
     [Key in keyof z.infer<typeof SignupFormSchema>]?: string[]
 }
+
+// login validation
+export const LoginFormSchema = z.object({
+    email: z.string().email({ message: 'Please enter valid email' }),
+    password: z.string()
+        .min(8, "Password must be at least 8 characters long")
+        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .regex(/[0-9]/, "Password must contain at least one number")
+        .regex(/[!@#$^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
+})
+
+export type LoginFormError = {
+    [Key in keyof z.infer<typeof LoginFormSchema>]?: string[]
+}
