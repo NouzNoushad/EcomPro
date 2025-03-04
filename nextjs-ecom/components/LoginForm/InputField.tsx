@@ -1,11 +1,25 @@
 'use client'
 
 import { useLoginStore } from '@/context/Store/LoginStore'
-import React from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
 
 export default function LoginInputField() {
 
     const { email, password, setEmail, setPassword, errors } = useLoginStore()
+
+    const router = useRouter()
+
+    useEffect(() => {
+        const token = localStorage.getItem("token")
+        console.log('/////// token: ', token)
+
+        if (token) {
+            router.push('/products')
+        } else {
+            router.push('/users/login')
+        }
+    }, [router])
 
     return (
         <div className="md:space-y-5 space-y-3 w-full">

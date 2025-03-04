@@ -1,5 +1,5 @@
 import MainFooter from '@/components/MainFooter'
-import MainHeader from '@/components/MainHeader'
+import MainHeader from '@/components/MainHeader/MainHeader'
 import Sidebar from '@/components/Sidebar'
 import React from 'react'
 
