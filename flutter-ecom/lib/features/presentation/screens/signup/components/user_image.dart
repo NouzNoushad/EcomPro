@@ -1,4 +1,5 @@
 import 'package:ecom_pro/core/utils/extensions.dart';
+import 'package:ecom_pro/features/presentation/screens/signup/components/image_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/utils/colors.dart';
@@ -24,7 +25,9 @@ class UserImage extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                imageBottomSheet(context);
+              },
               child: CircleAvatar(
                 backgroundColor: AppColors.primaryColor,
                 radius: context.height * 0.03,
