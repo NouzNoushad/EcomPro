@@ -1,3 +1,5 @@
+import 'package:ecom_pro/features/presentation/screens/login/login.dart';
+import 'package:ecom_pro/features/presentation/screens/signup/signup.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/utils/strings.dart';
@@ -11,6 +13,14 @@ class AppRoutes {
         return MaterialPageRoute(
             settings: const RouteSettings(name: RouteConstants.homeScreen),
             builder: (context) => const HomeScreen());
+      case RouteConstants.signupScreen:
+        return MaterialPageRoute(
+            settings: const RouteSettings(name: RouteConstants.signupScreen),
+            builder: (context) => const SignupScreen());
+      case RouteConstants.loginScreen:
+        return MaterialPageRoute(
+            settings: const RouteSettings(name: RouteConstants.loginScreen),
+            builder: (context) => const LoginScreen());
       default:
         return MaterialPageRoute(
             builder: (context) => const Scaffold(

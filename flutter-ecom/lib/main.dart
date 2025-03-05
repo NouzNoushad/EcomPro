@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         title: AppStrings.appName,
         theme: AppTheme.theme,
         debugShowCheckedModeBanner: false,
-        initialRoute: RouteConstants.homeScreen,
+        initialRoute: RouteConstants.signupScreen,
         onGenerateRoute: AppRoutes.onGenerateRoute,
       ),
     );
