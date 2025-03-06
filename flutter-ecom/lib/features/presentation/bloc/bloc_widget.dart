@@ -1,3 +1,4 @@
+import 'package:ecom_pro/features/presentation/bloc/login_cubit/login_cubit.dart';
 import 'package:ecom_pro/features/presentation/bloc/product_cubit/product_cubit.dart';
 import 'package:ecom_pro/features/presentation/bloc/signup_cubit/signup_cubit.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,9 @@ class BlocWidget extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => SignupCubit(),
+        ),
+        BlocProvider(
+          create: (context) => LoginCubit(),
         ),
       ],
       child: child,
