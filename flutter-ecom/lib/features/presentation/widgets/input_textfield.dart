@@ -65,7 +65,7 @@ class InputTextFormField extends StatelessWidget {
           color: AppColors.blackColor,
         ),
         errorStyle: const TextStyle(
-          color: AppColors.blackColor,
+          color: Colors.red,
         ),
         enabledBorder: kOutlineInputBorder(Colors.grey),
         focusedBorder: kOutlineInputBorder(Colors.grey),

@@ -2,16 +2,12 @@ part of 'product_cubit.dart';
 
 class ProductState extends Equatable {
   const ProductState({
-    required bool isStorageLoading,
-    required List<Product>? products,
-  })  : _isStorageLoading = isStorageLoading,
-        _products = products;
+    required this.isStorageLoading,
+    required this.products,
+  });
 
-  final bool _isStorageLoading;
-  final List<Product>? _products;
-
-  bool get isStorageLoading => _isStorageLoading;
-  List<Product>? get products => _products;
+  final bool isStorageLoading;
+  final List<Product>? products;
 
   ProductState copyWith({
     bool? isStorageLoading,

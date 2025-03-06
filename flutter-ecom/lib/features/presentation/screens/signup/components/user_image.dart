@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:ecom_pro/core/utils/extensions.dart';
+import 'package:ecom_pro/features/presentation/bloc/signup_cubit/signup_cubit.dart';
 import 'package:ecom_pro/features/presentation/screens/signup/components/image_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/utils/colors.dart';
 
@@ -12,14 +16,25 @@ class UserImage extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          CircleAvatar(
-            radius: context.height * 0.1,
-            backgroundColor: AppColors.primaryLightDarkColor,
-            child: Icon(
-              Icons.person_rounded,
-              size: context.height * 0.15,
-              color: AppColors.whiteColor,
-            ),
+          BlocBuilder<SignupCubit, SignupState>(
+            builder: (context, state) {
+              return state.selectedImage != ''
+                  ? ClipOval(
+                      child: CircleAvatar(
+                        radius: context.height * 0.1,
+                        child: Image.file(File(state.selectedImage)),
+                      ),
+                    )
+                  : CircleAvatar(
+                      radius: context.height * 0.1,
+                      backgroundColor: AppColors.primaryLightDarkColor,
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: context.height * 0.15,
+                        color: AppColors.whiteColor,
+                      ),
+                    );
+            },
           ),
           Positioned(
             right: 0,

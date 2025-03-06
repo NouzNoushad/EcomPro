@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../models/response/get_products.dart';
-import '../../bloc/cubit/product_cubit.dart';
+import '../../bloc/product_cubit/product_cubit.dart';
 import 'components/product_item.dart';
 
 class HomeScreen extends StatefulWidget {

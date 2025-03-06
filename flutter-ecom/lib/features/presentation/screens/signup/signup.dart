@@ -1,8 +1,11 @@
 import 'package:ecom_pro/core/utils/colors.dart';
+import 'package:ecom_pro/core/utils/constants.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../bloc/signup_cubit/signup_cubit.dart';
 import '../../widgets/input_button.dart';
 import '../../widgets/input_textfield.dart';
 import '../../widgets/redirect_to.dart';
@@ -16,6 +19,16 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  late GlobalKey<FormState> _formKey;
+  late SignupCubit _signupCubit;
+
+  @override
+  void initState() {
+    _formKey = GlobalKey<FormState>();
+    _signupCubit = context.read<SignupCubit>();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,57 +38,72 @@ class _SignupScreenState extends State<SignupScreen> {
           horizontal: 15,
           vertical: 15,
         ),
-        child: Column(
-          children: [
-            Spacer(),
-            UserImage(),
-            SizedBox(
-              height: 20,
-            ),
-            InputTextFormField(
-              hintText: 'Name',
-              icon: Icons.person,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            InputTextFormField(
-              hintText: 'Email',
-              icon: Icons.email,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            InputTextFormField(
-              hintText: 'Phone',
-              icon: Icons.phone,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            InputTextFormField(
-              hintText: 'Password',
-              icon: Icons.lock,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            RedirectTo(
-              message: 'Already have an account',
-              label: 'Login',
-              onTap: () {
-                context.pushNavigation(LoginScreen());
-              },
-            ),
-            Spacer(),
-            InputButton(
-              label: 'Sign up',
-              onPressed: () {},
-            ),
-            SizedBox(
-              height: 10,
-            )
-          ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Spacer(),
+              UserImage(),
+              SizedBox(
+                height: 20,
+              ),
+              InputTextFormField(
+                controller: _signupCubit.nameController,
+                hintText: 'Name',
+                icon: Icons.person,
+                validator: _signupCubit.nameValidator,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              InputTextFormField(
+                controller: _signupCubit.emailController,
+                hintText: 'Email',
+                icon: Icons.email,
+                validator: _signupCubit.emailValidator,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              InputTextFormField(
+                controller: _signupCubit.phoneController,
+                hintText: 'Phone',
+                icon: Icons.phone,
+                validator: _signupCubit.phoneValidator,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              InputTextFormField(
+                controller: _signupCubit.passwordController,
+                hintText: 'Password',
+                icon: Icons.lock,
+                validator: _signupCubit.passwordValidator,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              RedirectTo(
+                message: 'Already have an account',
+                label: 'Login',
+                onTap: () {
+                  context.pushNavigation(LoginScreen());
+                },
+              ),
+              Spacer(),
+              InputButton(
+                label: 'Sign up',
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    logger('/////////////// save data');
+                  }
+                },
+              ),
+              SizedBox(
+                height: 10,
+              )
+            ],
+          ),
         ),
       ),
     );
