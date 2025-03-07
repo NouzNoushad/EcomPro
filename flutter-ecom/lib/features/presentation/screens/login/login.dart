@@ -1,5 +1,4 @@
 import 'package:ecom_pro/core/utils/colors.dart';
-import 'package:ecom_pro/core/utils/constants.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/features/presentation/bloc/login_cubit/login_cubit.dart';
 import 'package:ecom_pro/features/presentation/screens/signup/signup.dart';
@@ -75,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: 'Login',
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      logger('/////////// save data');
+                      _loginCubit.loginAccount(context: context);
                     }
                   },
                 ),

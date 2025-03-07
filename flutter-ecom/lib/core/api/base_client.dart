@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:ecom_pro/features/models/response/get_products.dart';
+import 'package:ecom_pro/features/models/response/login_response.dart';
 import 'package:ecom_pro/features/models/user_model.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -70,6 +71,31 @@ class BaseClient {
           response.statusCode == StatusCode.created) {
         logger('////////////// response: ${response.data}');
         return CreateAccountResponse.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError) {
+        throw Exception('Network error');
+      } else {
+        throw Exception('Error: ${e.message}');
+      }
+    }
+    return null;
+  }
+
+  // login account
+  static Future<LoginResponse?> loginAccount(
+      String url, LoginModel loginModel) async {
+    try {
+      var formData = FormData.fromMap({
+        'email': loginModel.email,
+        'password': loginModel.password,
+      });
+      var response = await dio.post(url,
+          data: formData, options: Options(contentType: 'multipart/form-data'));
+      if (response.statusCode == StatusCode.ok ||
+          response.statusCode == StatusCode.created) {
+        logger('////////////// response: ${response.data}');
+        return LoginResponse.fromJson(response.data);
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionError) {

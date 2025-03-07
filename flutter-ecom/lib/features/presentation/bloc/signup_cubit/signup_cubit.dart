@@ -97,8 +97,10 @@ class SignupCubit extends Cubit<SignupState> {
     if (response != null) {
       if (!context.mounted) return;
       context.showToast(response.message ?? "");
-      resetUser();
       context.pushReplacementNavigation(LoginScreen());
+      Future.delayed(Duration(seconds: 1), () {
+        resetUser();
+      });
     }
   }
 }
