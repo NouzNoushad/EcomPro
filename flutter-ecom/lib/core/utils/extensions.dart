@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../helpers/navigation_helper.dart';
+import 'colors.dart';
 
 extension CapitalizeExt on String {
   String toCapitalize() => this[0].toUpperCase() + substring(1).toLowerCase();
@@ -26,4 +27,16 @@ extension NavigatorReplacementExt on BuildContext {
         this,
         NavigationHelpers.pageRouteBuilder(screen),
       );
+}
+
+extension ScaffoldMessengerExt on BuildContext {
+  void showToast(String message) =>
+      ScaffoldMessenger.of(this).showSnackBar(SnackBar(
+          backgroundColor: AppColors.primaryColor,
+          content: Text(
+            message,
+            style: TextStyle(
+              color: AppColors.whiteColor,
+            ),
+          )));
 }

@@ -1,5 +1,4 @@
 import 'package:ecom_pro/core/utils/colors.dart';
-import 'package:ecom_pro/core/utils/constants.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +32,8 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
+      extendBody: true,
+      resizeToAvoidBottomInset: true,
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: 15,
@@ -40,62 +41,72 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
+            physics: BouncingScrollPhysics(),
             children: [
-              Spacer(),
-              UserImage(),
-              SizedBox(
-                height: 20,
+              Container(
+                height: context.height * 0.8,
+                color: Colors.transparent,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      UserImage(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      InputTextFormField(
+                        controller: _signupCubit.nameController,
+                        hintText: 'Name',
+                        icon: Icons.person,
+                        validator: _signupCubit.nameValidator,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      InputTextFormField(
+                        controller: _signupCubit.emailController,
+                        hintText: 'Email',
+                        icon: Icons.email,
+                        validator: _signupCubit.emailValidator,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      InputTextFormField(
+                        controller: _signupCubit.phoneController,
+                        hintText: 'Phone',
+                        icon: Icons.phone,
+                        validator: _signupCubit.phoneValidator,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      InputTextFormField(
+                        controller: _signupCubit.passwordController,
+                        hintText: 'Password',
+                        icon: Icons.lock,
+                        validator: _signupCubit.passwordValidator,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      RedirectTo(
+                        message: 'Already have an account',
+                        label: 'Login',
+                        onTap: () {
+                          context.pushNavigation(LoginScreen());
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              InputTextFormField(
-                controller: _signupCubit.nameController,
-                hintText: 'Name',
-                icon: Icons.person,
-                validator: _signupCubit.nameValidator,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              InputTextFormField(
-                controller: _signupCubit.emailController,
-                hintText: 'Email',
-                icon: Icons.email,
-                validator: _signupCubit.emailValidator,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              InputTextFormField(
-                controller: _signupCubit.phoneController,
-                hintText: 'Phone',
-                icon: Icons.phone,
-                validator: _signupCubit.phoneValidator,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              InputTextFormField(
-                controller: _signupCubit.passwordController,
-                hintText: 'Password',
-                icon: Icons.lock,
-                validator: _signupCubit.passwordValidator,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              RedirectTo(
-                message: 'Already have an account',
-                label: 'Login',
-                onTap: () {
-                  context.pushNavigation(LoginScreen());
-                },
-              ),
-              Spacer(),
               InputButton(
                 label: 'Sign up',
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    logger('/////////////// save data');
+                    _signupCubit.createAccount(context: context);
                   }
                 },
               ),

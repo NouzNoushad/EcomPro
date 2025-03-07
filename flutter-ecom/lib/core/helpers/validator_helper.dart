@@ -17,7 +17,7 @@ class ValidatorHelper {
 
   // phone validator
   String? phoneValidator(String? value) {
-    if (value == null || value.trim().isNotEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Phone No field is required';
     }
     if (!RegExp(r'(^[0-9]{3}[-\s\.]?[0-9]{4,9}$)').hasMatch(value)) {

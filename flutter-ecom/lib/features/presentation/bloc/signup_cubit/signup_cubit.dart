@@ -1,9 +1,15 @@
 import 'package:bloc/bloc.dart';
+import 'package:ecom_pro/core/api/end_points.dart';
 import 'package:ecom_pro/core/helpers/image_picker.dart';
+import 'package:ecom_pro/core/utils/extensions.dart';
+import 'package:ecom_pro/features/models/response/create_account.dart';
+import 'package:ecom_pro/features/models/user_model.dart';
+import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/api/base_client.dart';
 import '../../../../core/helpers/validator_helper.dart';
 import '../../../../core/utils/constants.dart';
 
@@ -24,7 +30,7 @@ class SignupCubit extends Cubit<SignupState> {
 
   String _selectedImage = '';
 
-   final ValidatorHelper _validatorHelper = ValidatorHelper();
+  final ValidatorHelper _validatorHelper = ValidatorHelper();
 
   String? nameValidator(String? value) {
     return _validatorHelper.nameValidator(_nameController.text);
@@ -42,6 +48,15 @@ class SignupCubit extends Cubit<SignupState> {
     return _validatorHelper.passwordValidator(_passwordController.text);
   }
 
+  // reset user
+  void resetUser() {
+    _nameController.text = "";
+    _emailController.text = "";
+    _phoneController.text = "";
+    _passwordController.text = "";
+    emit(state.copyWith(selectedImage: ''));
+  }
+
   void onChangeSelectedImage({
     required BuildContext context,
     required ImageSource source,
@@ -53,5 +68,37 @@ class SignupCubit extends Cubit<SignupState> {
     logger('////////// camera path: $path');
     _selectedImage = path;
     emit(state.copyWith(selectedImage: _selectedImage));
+  }
+
+  // create account
+  void createAccount({
+    required BuildContext context,
+  }) async {
+    String url = '${EndPoints.baseUrl}/${EndPoints.account}';
+
+    String imagePath = _selectedImage;
+    String imageName = _selectedImage.split('/').last;
+
+    UserImage image = UserImage(imagePath: imagePath, imageName: imageName);
+
+    UserModel userModel = UserModel(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text.trim(),
+      image: image,
+    );
+
+    logger(
+        '//////////// user name: ${userModel.name}, email: ${userModel.email}, phone: ${userModel.phone}, pass: ${userModel.password}, imgPath: ${userModel.image?.imagePath}, imgName: ${userModel.image?.imageName},');
+
+    CreateAccountResponse? response =
+        await BaseClient.createAccount(url, userModel);
+    if (response != null) {
+      if (!context.mounted) return;
+      context.showToast(response.message ?? "");
+      resetUser();
+      context.pushReplacementNavigation(LoginScreen());
+    }
   }
 }
