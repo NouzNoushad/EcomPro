@@ -1,5 +1,8 @@
+import 'package:ecom_pro/core/helpers/secure_storage.dart';
 import 'package:ecom_pro/core/utils/colors.dart';
+import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/core/utils/strings.dart';
+import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -79,7 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: AppColors.whiteColor,
         title: Text(AppStrings.appName),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart))
+          IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart)),
+          IconButton(
+              onPressed: () {
+                SecureStorage storage = SecureStorage();
+                storage.removeStorage('token');
+                context.showToast('Logout');
+                context.pushReplacementNavigation(LoginScreen());
+              },
+              icon: Icon(Icons.power_settings_new)),
         ],
       );
 }
