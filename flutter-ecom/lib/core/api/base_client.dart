@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/features/models/response/get_products.dart';
 import 'package:ecom_pro/features/models/response/login_response.dart';
 import 'package:ecom_pro/features/models/user_model.dart';
+import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../features/models/response/create_account.dart';
@@ -84,7 +86,7 @@ class BaseClient {
 
   // login account
   static Future<LoginResponse?> loginAccount(
-      String url, LoginModel loginModel) async {
+      BuildContext context, String url, LoginModel loginModel) async {
     try {
       var formData = FormData.fromMap({
         'email': loginModel.email,
@@ -94,14 +96,15 @@ class BaseClient {
           data: formData, options: Options(contentType: 'multipart/form-data'));
       if (response.statusCode == StatusCode.ok ||
           response.statusCode == StatusCode.created) {
-        logger('////////////// response: ${response.data}');
         return LoginResponse.fromJson(response.data);
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionError) {
         throw Exception('Network error');
       } else {
-        throw Exception('Error: ${e.message}');
+        // throw Exception('Error: ${e.message}');
+        if (!context.mounted) return null;
+        context.showToast(e.response?.data['error']);
       }
     }
     return null;

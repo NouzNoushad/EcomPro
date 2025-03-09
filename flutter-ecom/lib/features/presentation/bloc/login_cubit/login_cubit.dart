@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:ecom_pro/core/helpers/secure_storage.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
 import 'package:ecom_pro/features/models/response/login_response.dart';
 import 'package:ecom_pro/features/models/user_model.dart';
@@ -42,6 +43,8 @@ class LoginCubit extends Cubit<LoginState> {
   void loginAccount({
     required BuildContext context,
   }) async {
+    SecureStorage storage = SecureStorage();
+
     String url = '${EndPoints.baseUrl}/${EndPoints.login}';
 
     LoginModel loginModel = LoginModel(
@@ -52,10 +55,12 @@ class LoginCubit extends Cubit<LoginState> {
     logger(
         '//////////// login user  email: ${loginModel.email}, pass: ${loginModel.password}');
 
-    LoginResponse? response = await BaseClient.loginAccount(url, loginModel);
+    LoginResponse? response =
+        await BaseClient.loginAccount(context, url, loginModel);
     if (response != null) {
       if (!context.mounted) return;
       context.showToast(response.message ?? "");
+      storage.saveToStorage('token', response.data?.token ?? '');
       context.pushReplacementNavigation(HomeScreen());
       Future.delayed(Duration(seconds: 1), () {
         resetLogin();

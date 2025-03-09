@@ -1,5 +1,6 @@
 import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:ecom_pro/features/presentation/screens/signup/signup.dart';
+import 'package:ecom_pro/features/presentation/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/utils/strings.dart';
@@ -9,6 +10,10 @@ import 'app_constants.dart';
 class AppRoutes {
   static Route onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case RouteConstants.splashScreen:
+        return MaterialPageRoute(
+            settings: const RouteSettings(name: RouteConstants.splashScreen),
+            builder: (context) => const SplashScreen());
       case RouteConstants.homeScreen:
         return MaterialPageRoute(
             settings: const RouteSettings(name: RouteConstants.homeScreen),
