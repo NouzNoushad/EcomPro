@@ -25,8 +25,10 @@ func (s *PostgresStore) createCartTable() error {
 func (s *PostgresStore) createCartItemTable() error {
 	query := `create table if not exists cartItems (
 		id text primary key,
+		cart_id text not null,
 		product_id text not null,
 		price numeric(10, 2) default 0.00,
+		quantity numeric(10, 2) default 0.00,
 		total_price numeric(10, 2) default 0.00,
 		updated_at timestamp default now(),
 		created_at timestamp default now()
@@ -71,11 +73,13 @@ func (s *PostgresStore) CreateCart(cart *Cart, cartItems []*CartItem) error {
 	if len(cartItems) > 0 {
 		cartItem := `insert into cartItems (
 			id,
+			cart_id,
 			product_id,
 			price,
+			quantity,
 			total_price,
 			updated_at,
-			created_at) values ($1, $2, $3, $4, $5, $6)`
+			created_at) values ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 		stmt, err := tx.Prepare(cartItem)
 		if err != nil {
@@ -87,8 +91,10 @@ func (s *PostgresStore) CreateCart(cart *Cart, cartItems []*CartItem) error {
 		for _, cartItem := range cartItems {
 			_, err := stmt.Exec(
 				cartItem.ID,
+				cartItem.CartID,
 				cartItem.ProductID,
 				cartItem.Price,
+				cartItem.Quantity,
 				cartItem.TotalPrice,
 				cartItem.UpdatedAt,
 				cartItem.CreatedAt,
@@ -128,15 +134,17 @@ func (s *PostgresStore) GetCarts() ([]*Cart, error) {
 
 			coalesce(jsonb_agg(distinct jsonb_build_object(
 				'id', ci.id,
-				'product_id', ci.product_id',
+				'cart_id', ci.cart_id,
+				'product_id', ci.product_id,
 				'price', ci.price,
+				'quantity', ci.quantity,
 				'total_price', ci.total_price,
 				'updated_at', to_char(ci.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
 				'created_at', to_char(ci.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
 			)) filter (where ci.id is not null), '[]'::jsonb) as cartItems
 		
 		from carts c
-		left join cartItems ci on c.id = ci.product_id
+		left join cartItems ci on c.id = ci.cart_id
 		group by c.id
 		order by created_at desc
 	`
@@ -220,15 +228,17 @@ func (s *PostgresStore) GetCartByID(id string) (*Cart, error) {
 
 			coalesce(jsonb_agg(distinct jsonb_build_object(
 				'id', ci.id,
-				'product_id', ci.product_id',
+				'cart_id', ci.cart_id,
+				'product_id', ci.product_id,
 				'price', ci.price,
+				'quantity', ci.quantity,
 				'total_price', ci.total_price,
 				'updated_at', to_char(ci.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
 				'created_at', to_char(ci.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
 			)) filter (where ci.id is not null), '[]'::jsonb) as cartItems
 		
 		from carts c
-		left join cartItems ci on c.id = ci.product_id
+		left join cartItems ci on c.id = ci.cart_id
 		where c.id = $1
 		group by c.id
 	`
@@ -262,17 +272,21 @@ func scanIntoCarts(scanner scannable) (*Cart, []byte, string, string, error) {
 func (s *PostgresStore) CreateCartItem(cartItem *CartItem) error {
 	query := `insert into cartItems (
 			id,
+			cart_id,
 			product_id,
 			price,
+			quantity,
 			total_price,
 			updated_at,
-			created_at) values ($1, $2, $3, $4, $5, $6)`
+			created_at) values ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	_, err := s.db.Query(
 		query,
 		cartItem.ID,
+		cartItem.CartID,
 		cartItem.ProductID,
 		cartItem.Price,
+		cartItem.Quantity,
 		cartItem.TotalPrice,
 		cartItem.UpdatedAt,
 		cartItem.CreatedAt,
@@ -329,8 +343,10 @@ func scanIntoCartItem(scanner scannable) (*CartItem, string, string, error) {
 
 	err := scanner.Scan(
 		&cartItem.ID,
+		&cartItem.CartID,
 		&cartItem.ProductID,
 		&cartItem.Price,
+		&cartItem.Quantity,
 		&cartItem.TotalPrice,
 		&updatedAtString,
 		&createdAtString,
