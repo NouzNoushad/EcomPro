@@ -18,6 +18,17 @@ func (s *APIServer) handleCart(w http.ResponseWriter, r *http.Request) error {
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
+// account validation
+func cartValidation(cart *Cart) error {
+
+	// name
+	if cart.UserID == "" {
+		return validationError("user Id is required")
+	}
+
+	return nil
+}
+
 // handle create cart
 func (s *APIServer) handleAddCart(w http.ResponseWriter, r *http.Request) error {
 	cart := new(Cart)
@@ -36,6 +47,10 @@ func (s *APIServer) handleAddCart(w http.ResponseWriter, r *http.Request) error 
 	}
 	cart.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 	cart.CreatedAt = time.Now().UTC().Format(time.RFC3339)
+
+	if err := cartValidation(cart); err != nil {
+		return badRequestError(w, err.Error())
+	}
 
 	cartItemsData := r.MultipartForm.Value["cartItems"]
 	cartItems := []*CartItem{}
