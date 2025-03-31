@@ -36,6 +36,15 @@ func (s *APIServer) handleCartByID(w http.ResponseWriter, r *http.Request) error
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
+// handle request method (cart item)
+func (s *APIServer) handleCartItem(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		return s.handleAddCartItem(w, r)
+	}
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
 // handle get carts
 func (s *APIServer) handleGetCarts(w http.ResponseWriter, _ *http.Request) error {
 	carts, err := s.store.GetCarts()
@@ -49,12 +58,28 @@ func (s *APIServer) handleGetCarts(w http.ResponseWriter, _ *http.Request) error
 	})
 }
 
-// account validation
+// cart validation
 func cartValidation(cart *Cart) error {
 
-	// name
+	// user id
 	if cart.UserID == "" {
-		return validationError("user Id is required")
+		return validationError("User Id is required")
+	}
+
+	return nil
+}
+
+// cart item validation
+func cartItemValidation(cartItem *CartItem) error {
+
+	// cart id
+	if cartItem.CartID == "" {
+		return validationError("Cart Id is required")
+	}
+
+	// product id
+	if cartItem.ProductID == "" {
+		return validationError("Product Id is required")
 	}
 
 	return nil
@@ -72,10 +97,7 @@ func (s *APIServer) handleAddCart(w http.ResponseWriter, r *http.Request) error 
 
 	cart.ID = uuid.New().String()
 	cart.UserID = r.FormValue("user_id")
-	cart.TotalCost, err = stringToFloat(r.FormValue("total_cost"))
-	if err != nil {
-		return badRequestError(w, "Invalid total cost format")
-	}
+
 	cart.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 	cart.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 
@@ -149,5 +171,47 @@ func (s *APIServer) handleDeleteCart(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message": fmt.Sprintf("Cart with id [%s] is deleted", id),
 		"id":      id,
+	})
+}
+
+// handle create cart item
+func (s *APIServer) handleAddCartItem(w http.ResponseWriter, r *http.Request) error {
+	cartItem := new(CartItem)
+
+	// parse multipart form
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		return badRequestError(w, "Failed to parse form")
+	}
+
+	cartItem.ID = uuid.New().String()
+	cartItem.CartID = r.FormValue("cart_id")
+	cartItem.ProductID = r.FormValue("product_id")
+	cartItem.Price, err = stringToFloat(r.FormValue("price"))
+	if err != nil {
+		return badRequestError(w, "Invalid price format")
+	}
+	cartItem.Quantity, err = stringToInt(r.FormValue("quantity"))
+	if err != nil {
+		return badRequestError(w, "Invalid quantity format")
+	}
+	cartItem.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+	cartItem.CreatedAt = time.Now().UTC().Format(time.RFC3339)
+
+	cartItem.TotalPrice = float64(cartItem.Quantity) * cartItem.Price
+
+	if err := cartItemValidation(cartItem); err != nil {
+		return badRequestError(w, err.Error())
+	}
+
+	// store
+	if err := s.store.CreateCartItem(cartItem); err != nil {
+		return serverError(w, err.Error())
+	}
+
+	// success
+	return WriteJSON(w, http.StatusCreated, map[string]interface{}{
+		"message": "Cart item created",
+		"data":    cartItem,
 	})
 }

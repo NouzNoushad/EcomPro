@@ -11,7 +11,6 @@ func (s *PostgresStore) createCartTable() error {
 	query := `create table if not exists carts (
 		id text primary key,
 		user_id text not null,
-		total_cost numeric(10, 2) default 0.00,
 		updated_at timestamp default now(),
 		created_at timestamp default now()
 	)`
@@ -28,7 +27,7 @@ func (s *PostgresStore) createCartItemTable() error {
 		cart_id text not null,
 		product_id text not null,
 		price numeric(10, 2) default 0.00,
-		quantity numeric(10, 2) default 0.00,
+		quantity numeric(10, 0) default 0,
 		total_price numeric(10, 2) default 0.00,
 		updated_at timestamp default now(),
 		created_at timestamp default now()
@@ -51,15 +50,13 @@ func (s *PostgresStore) CreateCart(cart *Cart, cartItems []*CartItem) error {
 	query := `insert into carts(
 		id,
 		user_id,
-		total_cost,
 		updated_at,
-		created_at) values ($1, $2, $3, $4, $5)`
+		created_at) values ($1, $2, $3, $4)`
 
 	_, err = tx.Exec(
 		query,
 		cart.ID,
 		cart.UserID,
-		cart.TotalCost,
 		cart.UpdatedAt,
 		cart.CreatedAt,
 	)
@@ -128,7 +125,6 @@ func (s *PostgresStore) GetCarts() ([]*Cart, error) {
 		select
 			c.id,
 			c.user_id,
-			c.total_cost,
 			to_char(c.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as updated_at,
 			to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as created_at,
 
@@ -222,7 +218,6 @@ func (s *PostgresStore) GetCartByID(id string) (*Cart, error) {
 		select
 			c.id,
 			c.user_id,
-			c.total_cost,
 			to_char(c.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as updated_at,
 			to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as created_at,
 
@@ -259,7 +254,6 @@ func scanIntoCarts(scanner scannable) (*Cart, []byte, string, string, error) {
 	err := scanner.Scan(
 		&cart.ID,
 		&cart.UserID,
-		&cart.TotalCost,
 		&updatedAtString,
 		&createdAtString,
 		&cartItemJson,
@@ -340,13 +334,14 @@ func (s *PostgresStore) GetCartItems() ([]*CartItem, error) {
 func scanIntoCartItem(scanner scannable) (*CartItem, string, string, error) {
 	cartItem := new(CartItem)
 	var updatedAtString, createdAtString string
+	var cartQuantity = int64(cartItem.Quantity)
 
 	err := scanner.Scan(
 		&cartItem.ID,
 		&cartItem.CartID,
 		&cartItem.ProductID,
 		&cartItem.Price,
-		&cartItem.Quantity,
+		&cartQuantity,
 		&cartItem.TotalPrice,
 		&updatedAtString,
 		&createdAtString,
