@@ -15,7 +15,38 @@ func (s *APIServer) handleCart(w http.ResponseWriter, r *http.Request) error {
 		return s.handleAddCart(w, r)
 	}
 
+	if r.Method == "GET" {
+		return s.handleGetCarts(w, r)
+	}
+
 	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
+// handle request methods (cart by id)
+func (s *APIServer) handleCartByID(w http.ResponseWriter, r *http.Request) error {
+
+	if r.Method == "GET" {
+		return s.handleGetCartByID(w, r)
+	}
+
+	if r.Method == "DELETE" {
+		return s.handleDeleteCart(w, r)
+	}
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
+// handle get carts
+func (s *APIServer) handleGetCarts(w http.ResponseWriter, _ *http.Request) error {
+	carts, err := s.store.GetCarts()
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"data":  carts,
+		"items": fmt.Sprintf("%d items", len(carts)),
+	})
 }
 
 // account validation
@@ -88,5 +119,35 @@ func (s *APIServer) handleAddCart(w http.ResponseWriter, r *http.Request) error 
 	return WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"message": "Added to Cart",
 		"data":    cart,
+	})
+}
+
+// handle cart by id
+func (s *APIServer) handleGetCartByID(w http.ResponseWriter, r *http.Request) error {
+	id := getID(r)
+
+	cart, err := s.store.GetCartByID(id)
+	if err != nil {
+		return err
+	}
+
+	// success
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"data": cart,
+	})
+}
+
+// handle delete cart
+func (s *APIServer) handleDeleteCart(w http.ResponseWriter, r *http.Request) error {
+	id := getID(r)
+
+	if err := s.store.DeleteCart(id); err != nil {
+		return err
+	}
+
+	// success
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message": fmt.Sprintf("Cart with id [%s] is deleted", id),
+		"id":      id,
 	})
 }

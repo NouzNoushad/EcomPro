@@ -68,6 +68,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/account/{id}", withJWTAuth(makeHandleFunc(s.handleAccountByID), s.store, UserAccount))
 	router.HandleFunc("/address/{id}", withJWTAuth(makeHandleFunc(s.handleAddressByID), s.store, UserAddress))
 	router.HandleFunc("/cart", makeHandleFunc(s.handleCart))
+	router.HandleFunc("/cart/{id}", makeHandleFunc(s.handleCartByID))
 
 	Static(router, "/uploads/", "./uploads")
 	Static(router, "/medias/", "./medias")
