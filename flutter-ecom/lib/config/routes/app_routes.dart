@@ -1,3 +1,4 @@
+import 'package:ecom_pro/features/presentation/screens/cart/cart.dart';
 import 'package:ecom_pro/features/presentation/screens/login/login.dart';
 import 'package:ecom_pro/features/presentation/screens/signup/signup.dart';
 import 'package:ecom_pro/features/presentation/screens/splash/splash_screen.dart';
@@ -26,6 +27,10 @@ class AppRoutes {
         return MaterialPageRoute(
             settings: const RouteSettings(name: RouteConstants.loginScreen),
             builder: (context) => const LoginScreen());
+      case RouteConstants.cartScreen:
+        return MaterialPageRoute(
+            settings: const RouteSettings(name: RouteConstants.cartScreen),
+            builder: (context) => const CartScreen());
       default:
         return MaterialPageRoute(
             builder: (context) => const Scaffold(
