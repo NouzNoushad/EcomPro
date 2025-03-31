@@ -349,3 +349,29 @@ func scanIntoCartItem(scanner scannable) (*CartItem, string, string, error) {
 
 	return cartItem, updatedAtString, createdAtString, err
 }
+
+// get cart item by id
+func (s *PostgresStore) GetCartItemByID(id string) (*CartItem, error) {
+	query := "select * from cartItems where id = $1"
+
+	row := s.db.QueryRow(query, id)
+
+	cartItem, updatedAtString, createdAtString, err := scanIntoCartItem(row)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse created_at
+	cartItem.CreatedAt, err = parseTime(createdAtString)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse updated_at
+	cartItem.UpdatedAt, err = parseTime(updatedAtString)
+	if err != nil {
+		return nil, err
+	}
+
+	return cartItem, nil
+}

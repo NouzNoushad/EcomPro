@@ -42,6 +42,24 @@ func (s *APIServer) handleCartItem(w http.ResponseWriter, r *http.Request) error
 		return s.handleAddCartItem(w, r)
 	}
 
+	if r.Method == "GET" {
+		return s.handleGetCartItems(w, r)
+	}
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
+// handle request methods (cart item by id)
+func (s *APIServer) handleCartItemByID(w http.ResponseWriter, r *http.Request) error {
+
+	if r.Method == "GET" {
+		return s.handleGetCartItemByID(w, r)
+	}
+
+	if r.Method == "DELETE" {
+		return s.handleDeleteCartItem(w, r)
+	}
+
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
@@ -64,22 +82,6 @@ func cartValidation(cart *Cart) error {
 	// user id
 	if cart.UserID == "" {
 		return validationError("User Id is required")
-	}
-
-	return nil
-}
-
-// cart item validation
-func cartItemValidation(cartItem *CartItem) error {
-
-	// cart id
-	if cartItem.CartID == "" {
-		return validationError("Cart Id is required")
-	}
-
-	// product id
-	if cartItem.ProductID == "" {
-		return validationError("Product Id is required")
 	}
 
 	return nil
@@ -174,6 +176,35 @@ func (s *APIServer) handleDeleteCart(w http.ResponseWriter, r *http.Request) err
 	})
 }
 
+// handle get cart items
+func (s *APIServer) handleGetCartItems(w http.ResponseWriter, _ *http.Request) error {
+	cartItems, err := s.store.GetCartItems()
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"data":  cartItems,
+		"items": fmt.Sprintf("%d items", len(cartItems)),
+	})
+}
+
+// cart item validation
+func cartItemValidation(cartItem *CartItem) error {
+
+	// cart id
+	if cartItem.CartID == "" {
+		return validationError("Cart Id is required")
+	}
+
+	// product id
+	if cartItem.ProductID == "" {
+		return validationError("Product Id is required")
+	}
+
+	return nil
+}
+
 // handle create cart item
 func (s *APIServer) handleAddCartItem(w http.ResponseWriter, r *http.Request) error {
 	cartItem := new(CartItem)
@@ -213,5 +244,35 @@ func (s *APIServer) handleAddCartItem(w http.ResponseWriter, r *http.Request) er
 	return WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"message": "Cart item created",
 		"data":    cartItem,
+	})
+}
+
+// handle cart by id
+func (s *APIServer) handleGetCartItemByID(w http.ResponseWriter, r *http.Request) error {
+	id := getID(r)
+
+	cartItem, err := s.store.GetCartItemByID(id)
+	if err != nil {
+		return err
+	}
+
+	// success
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"data": cartItem,
+	})
+}
+
+// handle delete cart item
+func (s *APIServer) handleDeleteCartItem(w http.ResponseWriter, r *http.Request) error {
+	id := getID(r)
+
+	if err := s.store.DeleteCartItem(id); err != nil {
+		return err
+	}
+
+	// success
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message": fmt.Sprintf("Cart item with id [%s] is deleted", id),
+		"id":      id,
 	})
 }

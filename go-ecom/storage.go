@@ -47,6 +47,7 @@ type Storage interface {
 	CreateCartItem(*CartItem) error
 	DeleteCartItem(string) error
 	GetCartItems() ([]*CartItem, error)
+	GetCartItemByID(string) (*CartItem, error)
 }
 
 // Postgresql store
