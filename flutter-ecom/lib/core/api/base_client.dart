@@ -109,6 +109,32 @@ class BaseClient {
     }
     return null;
   }
+
+  // add to cart
+  static Future<LoginResponse?> addToCart(
+      BuildContext context, String url, LoginModel loginModel) async {
+    try {
+      var formData = FormData.fromMap({
+        'email': loginModel.email,
+        'password': loginModel.password,
+      });
+      var response = await dio.post(url,
+          data: formData, options: Options(contentType: 'multipart/form-data'));
+      if (response.statusCode == StatusCode.ok ||
+          response.statusCode == StatusCode.created) {
+        return LoginResponse.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError) {
+        throw Exception('Network error');
+      } else {
+        // throw Exception('Error: ${e.message}');
+        if (!context.mounted) return null;
+        context.showToast(e.response?.data['error']);
+      }
+    }
+    return null;
+  }
 }
 
 class Handler {

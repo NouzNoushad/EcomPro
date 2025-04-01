@@ -3,4 +3,5 @@ class EndPoints {
   static const String product = "product";
   static const String account = "account";
   static const String login = "login";
+  static const String cart = "cart";
 }
