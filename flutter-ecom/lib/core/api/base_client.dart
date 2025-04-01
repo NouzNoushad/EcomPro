@@ -115,7 +115,7 @@ class BaseClient {
       BuildContext context, String url, LoginModel loginModel) async {
     try {
       var formData = FormData.fromMap({
-        'email': loginModel.email,
+        'user_id': loginModel.email,
         'password': loginModel.password,
       });
       var response = await dio.post(url,
