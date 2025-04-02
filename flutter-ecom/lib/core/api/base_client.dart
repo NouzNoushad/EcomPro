@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -8,7 +9,9 @@ import 'package:ecom_pro/features/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../features/models/cart_item.dart';
 import '../../features/models/response/create_account.dart';
+import '../../features/models/response/get_user.dart';
 import '../utils/constants.dart';
 import 'status_code.dart';
 
@@ -110,19 +113,17 @@ class BaseClient {
     return null;
   }
 
-  // add to cart
-  static Future<LoginResponse?> addToCart(
-      BuildContext context, String url, LoginModel loginModel) async {
+  // get user by email
+  static Future<GetAccountResponse?> getUserByEmailID(
+      BuildContext context, String url, String token) async {
     try {
-      var formData = FormData.fromMap({
-        'user_id': loginModel.email,
-        'password': loginModel.password,
-      });
-      var response = await dio.post(url,
-          data: formData, options: Options(contentType: 'multipart/form-data'));
+      var response = await dio.get(url,
+          options: Options(
+              contentType: 'multipart/form-data',
+              headers: {'x-jwt-token': token}));
       if (response.statusCode == StatusCode.ok ||
           response.statusCode == StatusCode.created) {
-        return LoginResponse.fromJson(response.data);
+        return GetAccountResponse.fromJson(response.data);
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionError) {
@@ -134,6 +135,35 @@ class BaseClient {
       }
     }
     return null;
+  }
+
+  // add to cart
+  static Future<void> addToCart(
+      BuildContext context, String url, CartModel cartModel) async {
+    try {
+      String cartItemsJson =
+          jsonEncode(cartModel.cartItems.map((item) => item.toJson()).toList());
+
+      var formData = FormData.fromMap({
+        'user_id': cartModel.userID,
+        'cartItems': cartItemsJson,
+      });
+      var response = await dio.post(url,
+          data: formData, options: Options(contentType: 'multipart/form-data'));
+      if (response.statusCode == StatusCode.ok ||
+          response.statusCode == StatusCode.created) {
+        logger('//// response: $response');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError) {
+        throw Exception('Network error');
+      } else {
+        throw Exception('Error: ${e.message}');
+        // if (!context.mounted) return null;
+        // context.showToast(e.response?.data['error']);
+      }
+    }
+    return;
   }
 }
 

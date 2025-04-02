@@ -52,6 +52,7 @@ type FuncType int
 const (
 	UserAccount FuncType = iota
 	UserAddress
+	EmailAddress
 )
 
 // router
@@ -67,6 +68,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/login", makeHandleFunc(s.handleLogin))
 	router.HandleFunc("/account/{id}", withJWTAuth(makeHandleFunc(s.handleAccountByID), s.store, UserAccount))
 	router.HandleFunc("/address/{id}", withJWTAuth(makeHandleFunc(s.handleAddressByID), s.store, UserAddress))
+	router.HandleFunc("/user/{email}", withJWTAuth(makeHandleFunc(s.handleAccountByEmailID), s.store, EmailAddress))
 	router.HandleFunc("/cart", makeHandleFunc(s.handleCart))
 	router.HandleFunc("/cart/{id}", makeHandleFunc(s.handleCartByID))
 	router.HandleFunc("/cart-item", makeHandleFunc(s.handleCartItem))
@@ -83,6 +85,13 @@ func getID(r *http.Request) string {
 	id := mux.Vars(r)["id"]
 
 	return id
+}
+
+// get Email
+func getEmail(r *http.Request) string {
+	email := mux.Vars(r)["email"]
+
+	return email
 }
 
 // parse error
@@ -178,26 +187,40 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s Storage, f FuncType) http.Handl
 			return
 		}
 
-		id := getID(r)
+		user := new(User)
 
-		var userID string
+		if f == UserAddress || f == UserAccount {
+			id := getID(r)
 
-		if f == UserAddress {
-			address, err := s.GetAddressByID(id)
+			var userID string
+
+			if f == UserAddress {
+				address, err := s.GetAddressByID(id)
+				if err != nil {
+					permissionDenied(w)
+					return
+				}
+
+				userID = address.UserID
+			} else {
+				userID = id
+			}
+
+			user, err = s.GetAccountByID(userID)
 			if err != nil {
 				permissionDenied(w)
 				return
 			}
 
-			userID = address.UserID
 		} else {
-			userID = id
-		}
 
-		user, err := s.GetAccountByID(userID)
-		if err != nil {
-			permissionDenied(w)
-			return
+			email := getEmail(r)
+
+			user, err = s.GetAccountByEmail(email)
+			if err != nil {
+				permissionDenied(w)
+				return
+			}
 		}
 
 		claims := token.Claims.(jwt.MapClaims)

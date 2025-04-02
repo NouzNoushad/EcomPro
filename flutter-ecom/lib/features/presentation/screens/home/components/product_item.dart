@@ -1,7 +1,9 @@
 import 'package:ecom_pro/core/api/end_points.dart';
 import 'package:ecom_pro/core/utils/colors.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
+import 'package:ecom_pro/features/presentation/bloc/login_cubit/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/response/get_products.dart';
 
@@ -62,7 +64,9 @@ class ProductItem extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      context.read<LoginCubit>().getUserID(context: context);
+                    },
                     child: Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(

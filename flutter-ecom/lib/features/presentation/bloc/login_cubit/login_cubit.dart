@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:ecom_pro/core/helpers/secure_storage.dart';
 import 'package:ecom_pro/core/utils/extensions.dart';
+import 'package:ecom_pro/core/utils/strings.dart';
+import 'package:ecom_pro/features/models/response/get_user.dart';
 import 'package:ecom_pro/features/models/response/login_response.dart';
 import 'package:ecom_pro/features/models/user_model.dart';
 import 'package:ecom_pro/features/presentation/screens/home/home_screen.dart';
@@ -60,11 +62,35 @@ class LoginCubit extends Cubit<LoginState> {
     if (response != null) {
       if (!context.mounted) return;
       context.showToast(response.message ?? "");
-      storage.saveToStorage('token', response.data?.token ?? '');
+      storage.saveToStorage(
+          AppStrings.tokenSecretKey, response.data?.token ?? '');
+      storage.saveToStorage(AppStrings.userSecretKey, loginModel.email);
       context.pushReplacementNavigation(HomeScreen());
       Future.delayed(Duration(seconds: 1), () {
         resetLogin();
       });
     }
+  }
+
+  // get user id
+  Future<String> getUserID({
+    required BuildContext context,
+  }) async {
+    String userID = '';
+    SecureStorage secureStorage = SecureStorage();
+    String? userEmail =
+        await secureStorage.getFromStorage(AppStrings.userSecretKey);
+    String? token =
+        await secureStorage.getFromStorage(AppStrings.tokenSecretKey);
+
+    if (userEmail != null && token != null) {
+      String url = '${EndPoints.baseUrl}/${EndPoints.user}/$userEmail';
+
+      if (!context.mounted) return '';
+      GetAccountResponse? account =
+          await BaseClient.getUserByEmailID(context, url, token);
+      userID = account?.data?.id ?? '';
+    }
+    return userID;
   }
 }

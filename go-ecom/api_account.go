@@ -48,6 +48,15 @@ func (s *APIServer) handleAccountByID(w http.ResponseWriter, r *http.Request) er
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
+// handle request methods (account by email id)
+func (s *APIServer) handleAccountByEmailID(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "GET" {
+		return s.handleGetAccountByEmailID(w, r)
+	}
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
 // handle request methods (address)
 func (s *APIServer) handleAddress(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
@@ -293,6 +302,20 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	return WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"message": "User created",
 		"data":    user,
+	})
+}
+
+func (s *APIServer) handleGetAccountByEmailID(w http.ResponseWriter, r *http.Request) error {
+
+	email := getEmail(r)
+
+	account, err := s.store.GetAccountByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"data": account,
 	})
 }
 
