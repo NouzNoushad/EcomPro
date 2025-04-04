@@ -1,13 +1,20 @@
+import 'package:ecom_pro/features/models/response/get_carts.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/utils/colors.dart';
 
-class CartItem extends StatelessWidget {
-  const CartItem({super.key});
+class CartItem extends StatefulWidget {
+  const CartItem({super.key, required this.cart});
+  final Cart? cart;
 
   @override
+  State<CartItem> createState() => _CartItemState();
+}
+
+class _CartItemState extends State<CartItem> {
+  @override
   Widget build(BuildContext context) {
-    return  Stack(
+    return Stack(
       children: [
         Positioned(
           right: 8,

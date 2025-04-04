@@ -11,6 +11,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../../features/models/cart_item.dart';
 import '../../features/models/response/create_account.dart';
+import '../../features/models/response/get_carts.dart';
 import '../../features/models/response/get_user.dart';
 import '../utils/constants.dart';
 import 'status_code.dart';
@@ -141,12 +142,10 @@ class BaseClient {
   static Future<void> addToCart(
       BuildContext context, String url, CartModel cartModel) async {
     try {
-      String cartItemsJson =
-          jsonEncode(cartModel.cartItems.map((item) => item.toJson()).toList());
-
       var formData = FormData.fromMap({
-        'user_id': cartModel.userID,
-        'cartItems': cartItemsJson,
+        'product_id': cartModel.productID,
+        'price': cartModel.price,
+        'quantity': cartModel.quantity,
       });
       var response = await dio.post(url,
           data: formData, options: Options(contentType: 'multipart/form-data'));
@@ -164,6 +163,17 @@ class BaseClient {
       }
     }
     return;
+  }
+
+  // get carts
+  static Future<GetCartsResponse?> getCarts(String url) async {
+    var response = await dio.get(url);
+    if (response.statusCode == StatusCode.ok) {
+      return GetCartsResponse.fromJson(response.data);
+    } else {
+      Handler.handleResponse(response);
+    }
+    return null;
   }
 }
 

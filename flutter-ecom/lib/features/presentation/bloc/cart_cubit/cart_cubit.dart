@@ -5,36 +5,48 @@ import 'package:flutter/material.dart';
 import '../../../../core/api/base_client.dart';
 import '../../../../core/api/end_points.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../models/response/get_carts.dart';
 
 part 'cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
   CartCubit()
       : super(CartState(
-          cartItems: [],
+          isStorageLoading: false,
+          carts: [],
         ));
 
-  final List<CartItemModel> _cartItems = [];
-
-  // add cart item
-  void addCartItem(CartItemModel cartItem) {
-    _cartItems.add(cartItem);
-
-    emit(state.copyWith(cartItems: _cartItems));
-  }
+  List<Cart>? _carts = [];
 
   // add to cart
   void addToCart({
     required BuildContext context,
-    required String userID,
+    required String productID,
+    required double price,
+    required int quantity,
   }) async {
     String url = '${EndPoints.baseUrl}/${EndPoints.cart}';
 
-    CartModel cartModel = CartModel(userID: userID, cartItems: _cartItems);
+    CartModel cartModel =
+        CartModel(productID: productID, price: price, quantity: quantity);
 
     logger(
-        '//////////// user id: ${cartModel.userID}, items: ${cartModel.cartItems},,');
+        '//////////// cart product id: ${cartModel.productID}, price: ${cartModel.price}, quantity: ${cartModel.quantity},,');
 
     await BaseClient.addToCart(context, url, cartModel);
+  }
+
+  // get carts
+  void getCarts() async {
+    emit(state.copyWith(isStorageLoading: true));
+    String url = "${EndPoints.baseUrl}/${EndPoints.cart}";
+    var cartResponse = await BaseClient.getCarts(url);
+    if (cartResponse != null) {
+      _carts = cartResponse.data;
+
+      emit(state.copyWith(isStorageLoading: false, carts: _carts));
+    } else {
+      emit(state.copyWith(isStorageLoading: false));
+    }
   }
 }

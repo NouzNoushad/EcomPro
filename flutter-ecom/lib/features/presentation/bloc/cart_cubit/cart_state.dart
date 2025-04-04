@@ -2,16 +2,20 @@ part of 'cart_cubit.dart';
 
 class CartState {
   CartState({
-    required this.cartItems,
+    required this.isStorageLoading,
+    required this.carts,
   });
 
-  final List<CartItemModel> cartItems;
+   final bool isStorageLoading;
+  final List<Cart>? carts;
 
   CartState copyWith({
-    List<CartItemModel>? cartItems,
-  }){
+    bool? isStorageLoading,
+    List<Cart>? carts,
+  }) {
     return CartState(
-      cartItems: cartItems ?? this.cartItems,
+      isStorageLoading: isStorageLoading ?? this.isStorageLoading,
+      carts: carts ?? this.carts,
     );
   }
 }

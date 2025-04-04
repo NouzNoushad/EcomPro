@@ -1,3 +1,4 @@
+import 'package:ecom_pro/features/presentation/bloc/cart_cubit/cart_cubit.dart';
 import 'package:ecom_pro/features/presentation/bloc/login_cubit/login_cubit.dart';
 import 'package:ecom_pro/features/presentation/bloc/product_cubit/product_cubit.dart';
 import 'package:ecom_pro/features/presentation/bloc/signup_cubit/signup_cubit.dart';
@@ -20,6 +21,9 @@ class BlocWidget extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => LoginCubit(),
+        ),
+        BlocProvider(
+          create: (context) => CartCubit(),
         ),
       ],
       child: child,

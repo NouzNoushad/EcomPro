@@ -69,21 +69,12 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type CartItem struct {
-	ID         string  `json:"id"`
-	CartID     string  `json:"cart_id"`
-	ProductID  string  `json:"product_id"`
-	Price      float64 `json:"price"`
-	Quantity   int64   `json:"quantity"`
-	TotalPrice float64 `json:"total_price"`
-	CreatedAt  string  `json:"created_at"`
-	UpdatedAt  string  `json:"updated_at"`
-}
-
 type Cart struct {
-	ID        string      `json:"id"`
-	UserID    string      `json:"user_id"`
-	Items     []*CartItem `json:"products"`
-	CreatedAt string      `json:"created_at"`
-	UpdatedAt string      `json:"updated_at"`
+	ID            string  `json:"id"`
+	ProductID     string  `json:"product_id"`
+	Price         float64 `json:"price"`
+	Quantity      int64   `json:"quantity"`
+	TotalPrice    float64 `json:"total_price"`
+	CreatedAt     string  `json:"created_at"`
+	UpdatedAt     string  `json:"updated_at"`
 }

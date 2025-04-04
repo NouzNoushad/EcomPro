@@ -39,15 +39,10 @@ type Storage interface {
 	GetAddresses() ([]*Address, error)
 	GetAddressByID(string) (*Address, error)
 	// cart
-	CreateCart(*Cart, []*CartItem) error
+	CreateCart(*Cart) error
 	DeleteCart(string) error
 	GetCarts() ([]*Cart, error)
 	GetCartByID(string) (*Cart, error)
-	// cart item
-	CreateCartItem(*CartItem) error
-	DeleteCartItem(string) error
-	GetCartItems() ([]*CartItem, error)
-	GetCartItemByID(string) (*CartItem, error)
 }
 
 // Postgresql store
@@ -104,11 +99,7 @@ func (s *PostgresStore) InitDB() error {
 		return err
 	}
 
-	if err := s.createCartTable(); err != nil {
-		return err
-	}
-
-	return s.createCartItemTable()
+	return s.createCartTable()
 }
 
 type scannable interface {
